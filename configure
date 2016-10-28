@@ -4016,14 +4016,12 @@ fi
      SHARED=
 
 # have to fix this for php/java bits.
-     PHP_SHARED=" -stdlib=libstdc++ -bundle  -undefined suppress -flat_namespace"
+     PHP_SHARED=" -bundle  -undefined suppress -flat_namespace"
      PHP_SO=".so"
-     JAVA_SHARED=" -stdlib=libstdc++ -dynamiclib -framework JavaVM"
+     JAVA_SHARED=" -dynamiclib -framework JavaVM"
      JAVA_SO=".jnilib"
-     CSHARP_SHARED=" -stdlib=libstdc++ -bundle  -undefined suppress -flat_namespace"
+     CSHARP_SHARED=" -bundle  -undefined suppress -flat_namespace"
      CSHARP_SO=".so"
-     CPPFLAGS+=" -stdlib=libstdc++"
-     LDFLAGS+=" -stdlib=libstdc++"
      ;;
    *-*-darwin*)
      SHARED=
@@ -7887,7 +7885,8 @@ $debug ||
 if test -n "$CONFIG_FILES"; then
 
 
-ac_cr=''
+ac_cr='
+'
 ac_cs_awk_cr=`$AWK 'BEGIN { print "a\rb" }' </dev/null 2>/dev/null`
 if test "$ac_cs_awk_cr" = "a${ac_cr}b"; then
   ac_cs_awk_cr='\\r'

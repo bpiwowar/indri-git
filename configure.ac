@@ -60,7 +60,7 @@ AC_CHECK_LIB(m, log)
 AC_CHECK_LIB(pthread, pthread_create)
 
 case $host in
-   *-*-solaris*) 
+   *-*-solaris*)
      AC_CHECK_LIB(nsl, gethostbyname)
      AC_CHECK_LIB(socket, socket)
      SHARED="-shared -fPIC"
@@ -71,7 +71,7 @@ case $host in
      CSHARP_SHARED="-G"
      CSHARP_SO=".so"
      ;;
-   *linux*) 
+   *linux*)
      SHARED="-shared -fPIC"
      PHP_SHARED="-shared"
      PHP_SO=".so"
@@ -84,14 +84,12 @@ case $host in
      SHARED=
 
 # have to fix this for php/java bits.
-     PHP_SHARED=" -stdlib=libstdc++ -bundle  -undefined suppress -flat_namespace"
+     PHP_SHARED=" -bundle  -undefined suppress -flat_namespace"
      PHP_SO=".so"
-     JAVA_SHARED=" -stdlib=libstdc++ -dynamiclib -framework JavaVM"
+     JAVA_SHARED=" -dynamiclib -framework JavaVM"
      JAVA_SO=".jnilib"
-     CSHARP_SHARED=" -stdlib=libstdc++ -bundle  -undefined suppress -flat_namespace"
+     CSHARP_SHARED=" -bundle  -undefined suppress -flat_namespace"
      CSHARP_SO=".so"
-     CPPFLAGS+=" -stdlib=libstdc++"
-     LDFLAGS+=" -stdlib=libstdc++"
      ;;
    *-*-darwin*)
      SHARED=
@@ -120,7 +118,7 @@ AC_DEFUN([AC_CXX_NAMESPACES],
 	  if test "$ac_cv_cxx_namespaces" = yes; then
 		AC_DEFINE(HAVE_NAMESPACES,,[define if the compiler implements namespaces])
           fi])
-			      
+
 AC_DEFUN([AC_CXX_ISNAN_IN_NAMESPACE_STD],
 	[AC_REQUIRE([AC_CXX_NAMESPACES])
 	AC_MSG_CHECKING([whether isnan is in namespace std])
@@ -147,7 +145,7 @@ AC_DEFUN([AC_CXX_ISNAN_IN_NAMESPACE_GNU_CXX],
 	    AC_DEFINE(ISNAN_IN_NAMESPACE_GNU_CXX,,[define if the compiler has isnan function in namespace __gnu_cxx])
 	 fi])
 
-AC_CXX_ISNAN_IN_NAMESPACE_STD	       
+AC_CXX_ISNAN_IN_NAMESPACE_STD
 AC_CXX_ISNAN_IN_NAMESPACE_GNU_CXX
 dnl Checks for typedefs, structures, and compiler characteristics.
 dnl AC_CHECK_SIZEOF(int)
@@ -229,7 +227,7 @@ AC_ARG_ENABLE(assert,
 dnl Look for java
 if test "$enable_java" = "yes" ; then
    AC_ARG_WITH(javahome, [  --with-javahome=path       Set location of JAVAHOME],[JAVAHOME="$withval"; JAVACBIN=$JAVAHOME/bin/javac; JAVAINCDIR=$JAVAHOME/include; JAR=$JAVAHOME/bin/jar; JAVADOC=$JAVAHOME/bin/javadoc], [JAVAHOME=])
-   
+
    if test -z "$JAVACBIN" ; then
      AC_PATH_PROGS(JAVAC, javac)
      AC_PATH_PROGS(JAR, jar)

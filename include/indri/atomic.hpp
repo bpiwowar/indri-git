@@ -40,7 +40,7 @@ namespace indri {
     inline void decrement( value_type& variable ) {
       ::InterlockedDecrement( &variable );
     }
-#else
+#elif defined(__GLIBCXX__) || defined(__GLIBCPP__)
     // GCC 3.4+ declares these in the __gnu_cxx namespace, 3.3- does not.
     #if P_NEEDS_GNU_CXX_NAMESPACE
     #define __atomic_add __gnu_cxx::__atomic_add
@@ -54,6 +54,20 @@ namespace indri {
     inline void decrement( value_type& variable ) {
       __atomic_add( &variable, -1 );
     }
+#elif __APPLE__
+    #include <libkern/OSAtomic.h>
+
+    typedef int32_t value_type;
+
+    inline void increment( value_type& variable ) {
+      OSAtomicIncrement32( &variable );
+    }
+
+    inline void decrement( value_type& variable ) {
+      OSAtomicDecrement32( &variable );
+    }
+#else
+    #error "atomic not supported"
 #endif
   }
 }

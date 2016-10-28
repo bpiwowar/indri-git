@@ -46,7 +46,7 @@ namespace indri
 {
   namespace parse
   {
-    
+
     class StopperTransformation : public Transformation {
     private:
       ObjectHandler<indri::api::ParsedDocument>* _handler;
@@ -67,6 +67,8 @@ namespace indri
       };
 #if HAVE_GCC_VERSION(4,3)
       typedef std::tr1::unordered_set<char *, std::tr1::hash<std::string>, eqstr> dictTable;
+#elif _LIBCPP_VERSION
+    typedef __gnu_cxx::hash_set<char *, __gnu_cxx::hash<char *>, eqstr> dictTable;
 #else
       typedef hash_set<char *, hash<char *>, eqstr> dictTable;
 #endif
