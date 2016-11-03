@@ -422,6 +422,8 @@ void indri::api::IndexEnvironment::addFile( const std::string& fileName, const s
         // if not found, add the document.
         if (ids.size() == 0)  {
             int documentId = _repository.addDocument( parsed );
+            if( _callback ) _callback->indexed( documentId, document, parsed );
+
             _documentsIndexed++;
         } // else mention the dupe?
         

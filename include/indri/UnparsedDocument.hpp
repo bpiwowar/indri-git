@@ -32,6 +32,10 @@ namespace indri
       const char* content;
       size_t contentLength;
 
+      // Position and size in file
+      size_t position;
+      size_t size;
+
       indri::utility::greedy_vector<MetadataPair> metadata;
     };
   }

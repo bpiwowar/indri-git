@@ -54,8 +54,11 @@ namespace indri
       virtual void operator () ( int code, const std::string& documentPath, const std::string& error, int documentsIndexed, int documentsSeen ) {
         status( code, documentPath, error, documentsIndexed, documentsSeen );
       }
-
       virtual void status( int code, const std::string& documentPath, const std::string& error, int documentsIndexed, int documentsSeen ) {};
+
+      virtual void indexed( int documentId, indri::parse::UnparsedDocument * document, indri::api::ParsedDocument * parsed ) {};
+
+
     };
 
     /*! \brief Principal class for interacting with Indri indexes during index 

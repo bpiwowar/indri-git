@@ -255,8 +255,11 @@ indri::parse::UnparsedDocument* indri::parse::WARCDocumentIterator::nextDocument
   // combine with the file uuid to make a DOCNO
   // get the WARC-Target-URI to get the url for the front of the DOCHDR.
   std::string warcType = "";
+  size_t startPosition, endPosition;
   do {
+    startPosition = gztell(_gzin);
     result = _record->readRecord();
+    endPosition = gztell(_gzin);
     if (! result) return 0;
     warcType = _record->getWarcType();
   } while (warcType != "response");
@@ -346,5 +349,8 @@ indri::parse::UnparsedDocument* indri::parse::WARCDocumentIterator::nextDocument
   _document.contentLength = contentLen - numRead ;
   _document.text = startDocument;
   _document.textLength = contentLen + 1;
+
+  _document.position = startPosition;
+  _document.size = endPosition - startPosition;
   return &_document;
 }
