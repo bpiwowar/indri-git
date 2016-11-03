@@ -21,6 +21,8 @@
 #include "indri/delete_range.hpp"
 #include "indri/Buffer.hpp"
 #include <memory>
+#include <iostream>
+
 namespace indri
 {
   namespace utility
@@ -45,22 +47,25 @@ namespace indri
           free( _malloced[i] );
       }
 
-      void* allocate( size_t bytes ) {
-
+      void* allocate( size_t bytes, size_t align ) {
         if( bytes > 1024*32 ) {
           _mallocBytes += bytes;
           _malloced.push_back( malloc( bytes ) );
           return _malloced.back();
         }
     
-        bytes = (bytes+7) & ~7; // round up
-    
-        if( _buffers.size() && _buffers.back()->remaining() >= bytes ) {
-          return _buffers.back()->write( bytes );
-        }
+        if (_buffers.size()) {    
+          size_t _bpos = (size_t)(_buffers.back()->front() + _buffers.back()->position());
+          size_t padding = _bpos % align;
+          size_t padded_bytes = padding + bytes;
 
+          if(_buffers.back()->remaining() >= padded_bytes ) {
+            return _buffers.back()->write( padded_bytes ) + padding;
+          }
+
+        }
         _buffers.push_back( new Buffer( 1024*1024 ) );
-        return allocate( bytes );
+        return allocate( bytes , align );
       }
 
       size_t allocatedBytes() {

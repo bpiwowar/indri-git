@@ -60,11 +60,11 @@ namespace indri {
     typedef int32_t value_type;
 
     inline void increment( value_type& variable ) {
-      OSAtomicIncrement32( &variable );
+      OSAtomicIncrement32Barrier( &variable );
     }
 
     inline void decrement( value_type& variable ) {
-      OSAtomicDecrement32( &variable );
+      OSAtomicDecrement32Barrier( &variable );
     }
 #else
     #error "atomic not supported"

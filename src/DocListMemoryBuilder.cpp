@@ -93,7 +93,7 @@ void indri::index::DocListMemoryBuilder::_grow() {
   // ensure we have enough space for a location after copying.
   newSize = std::max<unsigned int>( newSize, _roundUp( documentCopyAmount + LOCATION_SPACE) );
 
-  _list = (char*) _allocator->allocate( newSize );
+  _list = (char*) _allocator->allocate( newSize, 8);
   _listBegin = _list;
   _listEnd = _list + newSize;
 

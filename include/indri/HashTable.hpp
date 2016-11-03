@@ -240,7 +240,7 @@ namespace indri
         bucket_type* b = 0;
 
         if( _allocator ) {
-          b = (bucket_type*) _allocator->allocate( sizeof (bucket_type) );
+          b = (bucket_type*) _allocator->allocate( sizeof (bucket_type), __alignof(bucket_type) );
           new(b) bucket_type( k, p );
         } else {
           b = new bucket_type( k, p );
@@ -253,7 +253,7 @@ namespace indri
         bucket_type* b = 0;
 
         if( _allocator ) {
-          b = (bucket_type*) _allocator->allocate( sizeof (bucket_type) );
+          b = (bucket_type*) _allocator->allocate( sizeof (bucket_type), __alignof(bucket_type) );
           new(b) bucket_type( k, v, p );
         } else {
           b = new bucket_type( k, v, p );

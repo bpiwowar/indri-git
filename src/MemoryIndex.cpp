@@ -31,6 +31,8 @@
 #include "indri/delete_range.hpp"
 
 #include <algorithm>
+#include <iostream>
+#include <memory>
 
 const int HASH_TABLE_SIZE = 10*1024*1024;
 const int ONE_MEGABYTE = 1024*1024;
@@ -497,13 +499,13 @@ indri::index::MemoryIndex::term_entry* indri::index::MemoryIndex::_lookupTerm( c
   _corpusStatistics.uniqueTerms++;
   lemur::api::TERMID_T termID = _corpusStatistics.uniqueTerms;
   // create a term data structure
-  TermData* termData = termdata_construct( _allocator.allocate( termdata_size( _fieldData.size() ) ),
+  TermData* termData = termdata_construct( _allocator.allocate( termdata_size( _fieldData.size() ), __alignof(TermData) ),
                                            _fieldData.size() );
   
   term_entry* newEntry = 0;
   int termLength = strlen(term);
   
-  newEntry = (term_entry*) _allocator.allocate( termLength+1 + sizeof(term_entry) );
+  newEntry = (term_entry*) _allocator.allocate( termLength+1 + sizeof(term_entry), __alignof(term_entry));
   newEntry->term = (char*) newEntry + sizeof(term_entry);
   strcpy( newEntry->term, term );
   new (newEntry) term_entry( &_allocator );

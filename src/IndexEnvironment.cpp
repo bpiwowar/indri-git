@@ -421,7 +421,7 @@ void indri::api::IndexEnvironment::addFile( const std::string& fileName, const s
         std::vector<lemur::api::DOCID_T> ids = _repository.collection()->retrieveIDByMetadatum("docno", docIDStr);
         // if not found, add the document.
         if (ids.size() == 0)  {
-            _repository.addDocument( parsed );
+            int documentId = _repository.addDocument( parsed );
             _documentsIndexed++;
         } // else mention the dupe?
         
