@@ -462,3 +462,4 @@ target_include_directories(indri PUBLIC include contrib/lemur/indri contrib/xpdf
 
 add_subdirectory(buildindex)
 add_subdirectory(dumpindex)
+add_subdirectory(harvestlinks)

@@ -1,0 +1,2 @@
+add_executable(harvestlinks harvestlinks.cpp)
+target_link_libraries(harvestlinks indri)
