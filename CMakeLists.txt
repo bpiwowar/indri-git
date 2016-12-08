@@ -3,6 +3,8 @@ project(indri_git)
 
 set(CMAKE_CXX_STANDARD 11)
 
+find_package(Zlib)
+
 add_subdirectory(contrib/antlr)
 add_subdirectory(contrib/lemur)
 add_subdirectory(contrib/xpdf)
@@ -454,5 +456,9 @@ set(SOURCE_FILES
 )
 
 add_library(indri STATIC ${SOURCE_FILES})
-target_link_libraries(indri antlr xpdf lemur)
+target_link_libraries(indri antlr xpdf lemur ${ZLIB_LIBRARIES})
 target_include_directories(indri PUBLIC include contrib/lemur/indri contrib/xpdf/include)
+
+
+add_subdirectory(buildindex)
+add_subdirectory(dumpindex)

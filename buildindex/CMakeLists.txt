@@ -1,0 +1,2 @@
+add_executable(buildindex IndriBuildIndex.cpp)
+target_link_libraries(buildindex indri)
