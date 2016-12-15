@@ -234,6 +234,10 @@ namespace indri
       /// @param flag true, if ParsedDocuments should be stored, false otherwise.
       void setStoreDocs( bool flag );
 
+      /// set storing of ParsedDocuments pointers; default is false
+      /// @param flag true, if ParsedDocuments should be stored as pointers, false otherwise.
+      void setStoreDocsPointers( bool flag );
+
       /// provides the indexer with the hint strategy to use for speed optimizations for indexing offset annotations
       /// @param hintType the int type (of OffsetAnnotationIndexHint enum type)
       void setOffsetAnnotationIndexHint(indri::parse::OffsetAnnotationIndexHint hintType);

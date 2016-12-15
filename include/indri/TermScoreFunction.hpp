@@ -31,6 +31,7 @@ namespace indri
     */
     class TermScoreFunction {
     public:
+      virtual ~TermScoreFunction();
       virtual double scoreOccurrence( double occurrences, int contextLength ) = 0;
       virtual double scoreOccurrence( double occurrences, int contextLength, double documentOccurrences, int documentLength ) = 0;
     };

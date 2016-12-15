@@ -12,64 +12,46 @@
 //
 // atomic
 //
-// 15 December 2004 -- tds
 //
 
 #ifndef INDRI_ATOMIC_HPP
 #define INDRI_ATOMIC_HPP
 
-#ifndef WIN32
-#if HAVE_BITS_ATOMICITY_H
-#include <bits/atomicity.h>
-#endif
-#if HAVE_EXT_ATOMICITY_H
-#include <ext/atomicity.h>
-#endif
-#endif
+#include <atomic>
+#include <memory>
 
 namespace indri {
-  /*! \brief Atomic actions for thread support */
-  namespace atomic {
-#ifdef WIN32
-    typedef volatile LONG value_type;
+/*! \brief Atomic actions for thread support */
+namespace atomic {
 
-    inline void increment( value_type& variable ) {
-      ::InterlockedIncrement( &variable );
-    }
+struct value_type {
+  std::shared_ptr<std::atomic_long> value;
 
-    inline void decrement( value_type& variable ) {
-      ::InterlockedDecrement( &variable );
-    }
-#elif defined(__GLIBCXX__) || defined(__GLIBCPP__)
-    // GCC 3.4+ declares these in the __gnu_cxx namespace, 3.3- does not.
-    #if P_NEEDS_GNU_CXX_NAMESPACE
-    #define __atomic_add __gnu_cxx::__atomic_add
-    #endif
-    typedef _Atomic_word value_type;
-
-    inline void increment( value_type& variable ) {
-     __atomic_add( &variable, 1 );
-    }
-
-    inline void decrement( value_type& variable ) {
-      __atomic_add( &variable, -1 );
-    }
-#elif __APPLE__
-    #include <libkern/OSAtomic.h>
-
-    typedef int32_t value_type;
-
-    inline void increment( value_type& variable ) {
-      OSAtomicIncrement32Barrier( &variable );
-    }
-
-    inline void decrement( value_type& variable ) {
-      OSAtomicDecrement32Barrier( &variable );
-    }
-#else
-    #error "atomic not supported"
-#endif
+  value_type() : value_type(0) {
   }
+
+  value_type(long initialValue) : value(std::make_shared<std::atomic_long>()) {
+    *value = 0;
+  }
+
+  value_type & operator=(long newValue) {
+    *value = newValue;
+    return *this;
+  }
+
+  operator long() const {
+    return *value;
+  }
+};
+
+inline void increment(value_type &variable) {
+  ++(*variable.value);
+}
+
+inline void decrement(value_type &variable) {
+  --(*variable.value);
+}
+}
 }
 
 #endif // INDRI_ATOMIC_HPP

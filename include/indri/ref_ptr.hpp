@@ -113,7 +113,7 @@ namespace indri {
       atomic::value_type references() {
         if( _ref )
           return _ref->counter;
-        return 0;
+        return atomic::value_type();
       }
 
       T& operator* () {

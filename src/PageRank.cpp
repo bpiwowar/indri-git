@@ -599,7 +599,7 @@ void indri::parse::PageRank::indexPageRank( const std::string& outputFile,
           pr += out_prTable_ptr[link]/outlinksTable[link];
         }
           in_prTable_ptr[docid] = ((1.0 - _c)/(double)_colLen) + _c * pr;
-        delete linkdocs;
+        delete [] linkdocs;
       }
     }
     // test for convergence
@@ -615,8 +615,8 @@ void indri::parse::PageRank::indexPageRank( const std::string& outputFile,
 
   // clean up
   delete[](tmp_prTable);
-  delete outlinksTable;
-  delete ivlIndex;
+  delete [] outlinksTable;
+  delete [] ivlIndex;
   delete ivlReadBuffer;
   ivlFile.close();
   lemur_compat::remove( ivlPath.c_str() );

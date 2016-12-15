@@ -39,13 +39,24 @@ namespace indri
 {
   namespace collection
   {
-    
+
+    enum class DocumentStorageMode {
+      NONE, FULL, POINTERS
+    };
+
     class CompressedCollection : public Collection {
     private:
       indri::thread::Mutex _lock;
 
       std::string _basePath;
+      /** Contains the information enabling to retrieve the document content
+       * - DocumentStorageMode::FULL, the offset in the storage file
+       * - DocumentStorageMode::POINTER, the offset of the filename in storage and the offset in the file
+       */
       lemur::file::Keyfile _lookup;
+      /**
+       * Contains the document content (DocumentStorageMode::FULL) or the document names (DocumentStorageMode::POINTER)
+       */
       indri::file::File _storage;
       indri::file::SequentialWriteBuffer* _output;
       indri::utility::Buffer _positionsBuffer;
@@ -78,10 +89,10 @@ namespace indri
 
 
       void _copyStorageEntry( indri::file::SequentialReadBuffer* input,
-                              indri::file::SequentialWriteBuffer* output, 
+                              indri::file::SequentialWriteBuffer* output,
                               int key,
                               UINT64 position,
-                              UINT64 length, 
+                              UINT64 length,
                               lemur::file::Keyfile& lookup );
       void _copyStorageData( indri::file::SequentialReadBuffer* input,
                              indri::file::SequentialWriteBuffer* output,
@@ -92,14 +103,14 @@ namespace indri
                              UINT64 storageLength );
       void _copyForwardLookup( const std::string& name, lemur::file::Keyfile& other, lemur::api::DOCID_T documentOffset );
 
-      bool _storeDocs;      
+      DocumentStorageMode _storeDocs;
     public:
       CompressedCollection();
       ~CompressedCollection();
 
       void create( const std::string& fileName );
       void create( const std::string& fileName, const std::vector<std::string>& indexedFields );
-      void create( const std::string& fileName, const std::vector<std::string>& forwardIndexedFields, const std::vector<std::string>& reverseIndexedFields,  bool storeDocs = true );
+      void create( const std::string& fileName, const std::vector<std::string>& forwardIndexedFields, const std::vector<std::string>& reverseIndexedFields, DocumentStorageMode storeDocs = DocumentStorageMode::FULL);
       void reopen( const std::string& fileName );
       void open( const std::string& fileName );
       void openRead( const std::string& fileName );

@@ -956,6 +956,7 @@ int main(int argc, char * argv[]) {
     env.setNormalization( parameters.get("normalize", true));
     env.setInjectURL( parameters.get("injectURL", true));
     env.setStoreDocs( parameters.get("storeDocs", true));
+    env.setStoreDocsPointers( parameters.get("storeDocsPointers", false));
 
     std::string blackList = parameters.get("blacklist", "");
     if( blackList.length() ) {

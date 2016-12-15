@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.6)
 project(indri_git)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(Zlib)
+find_package(hts)
 
 add_subdirectory(contrib/antlr)
 add_subdirectory(contrib/lemur)
@@ -456,8 +458,8 @@ set(SOURCE_FILES
 )
 
 add_library(indri STATIC ${SOURCE_FILES})
-target_link_libraries(indri antlr xpdf lemur ${ZLIB_LIBRARIES})
-target_include_directories(indri PUBLIC include contrib/lemur/indri contrib/xpdf/include)
+target_link_libraries(indri antlr xpdf lemur ${ZLIB_LIBRARIES} ${LIBHTS_LIBRARIES})
+target_include_directories(indri PUBLIC include contrib/lemur/indri contrib/xpdf/include ${LIBHTS_INCLUDE_DIRS})
 
 
 add_subdirectory(buildindex)

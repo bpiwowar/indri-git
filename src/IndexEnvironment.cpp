@@ -167,6 +167,10 @@ void indri::api::IndexEnvironment::setStoreDocs( bool flag ) {
   _parameters.set( "storeDocs", flag );
 }
 
+void indri::api::IndexEnvironment::setStoreDocsPointers( bool value ) {
+  _parameters.set( "storeDocsPointers", value );
+}
+
 void indri::api::IndexEnvironment::setInjectURL( bool flag ) {
   _parameters.set( "injectURL", flag );
 }

@@ -52,10 +52,10 @@ const static int defaultMemory = 100*1024*1024;
 void indri::collection::Repository::_openPriors( const std::string& indexPath ) {
   assert( _priorFiles.size() == 0 );
   std::string priorDirectory = indri::file::Path::combine( indexPath, "prior" );
-  
+
   // if the prior directory doesn't exist, we're done
   if( !indri::file::Path::isDirectory( priorDirectory ) )
-    return;          
+    return;
 
   indri::file::DirectoryIterator files( priorDirectory, false );
 
@@ -66,8 +66,8 @@ void indri::collection::Repository::_openPriors( const std::string& indexPath ) 
 
     assert( _priorFiles.find( priorName ) == _priorFiles.end() );
     priorFile->openRead( priorPath );
-    _priorFiles[ priorName ] = priorFile;  
-  }  
+    _priorFiles[ priorName ] = priorFile;
+  }
 }
 
 //
@@ -76,12 +76,12 @@ void indri::collection::Repository::_openPriors( const std::string& indexPath ) 
 
 void indri::collection::Repository::_closePriors() {
   std::map< std::string, indri::file::File* >::iterator iter;
-  
+
   for( iter = _priorFiles.begin(); iter != _priorFiles.end(); iter++ ) {
     iter->second->close();
     delete iter->second;
   }
-  
+
   _priorFiles.clear();
 }
 
@@ -94,13 +94,13 @@ std::vector<indri::index::Index::FieldDescription> indri::collection::Repository
 
   for( size_t i=0; i<_fields.size(); i++ ) {
     indri::index::Index::FieldDescription fdesc;
-    
+
     fdesc.name = _fields[i].name;
     fdesc.numeric = _fields[i].numeric;
     fdesc.ordinal = _fields[i].ordinal;
     fdesc.parental = _fields[i].parental;
     if (fdesc.numeric) fdesc.parserName = _fields[i].parserName;
-    
+
     result.push_back(fdesc);
   }
 
@@ -292,7 +292,7 @@ indri::collection::Repository::Load indri::collection::Repository::_computeLoad(
     load.one += loadArray[i];
   }
 
-  for( int i=0; i<5*LOAD_MINUTE_FRACTION; i++ ) { 
+  for( int i=0; i<5*LOAD_MINUTE_FRACTION; i++ ) {
     load.five += loadArray[i];
   }
   load.five /= 5.;
@@ -331,7 +331,7 @@ void indri::collection::Repository::create( const std::string& path, indri::api:
 
   try {
     _cleanAndCreateDirectory( path );
-    
+
     _memory = defaultMemory;
     if( options )
       _memory = options->get( "memory", _memory );
@@ -384,7 +384,10 @@ void indri::collection::Repository::create( const std::string& path, indri::api:
     }
 
     _collection->create( collectionPath, forwardFields, backwardFields,
-                         options->get( "storeDocs", true) );
+        options->get("storeDocs", true) ?
+            (options->get( "storeDocsPointers", false ) ? DocumentStorageMode::POINTERS : DocumentStorageMode::FULL)
+            : DocumentStorageMode::NONE
+    );
 
     _startThreads();
   } catch( lemur::api::Exception& e ) {
@@ -426,7 +429,7 @@ void indri::collection::Repository::openRead( const std::string& path, indri::ap
     _collection = new CompressedCollection();
     _collection->openRead( collectionPath );
     _deletedList.read( deletedName );
-    
+
     // open priors
     _openPriors( path );
 
@@ -474,10 +477,10 @@ void indri::collection::Repository::open( const std::string& path, indri::api::P
     // open compressed collection
     _collection = new CompressedCollection();
     _collection->open( collectionPath );
-    
+
     // open priors
     _openPriors( path );
-    
+
     // read deleted documents in
     std::string deletedName = indri::file::Path::combine( path, "deleted" );
     _deletedList.read( deletedName );
@@ -506,10 +509,10 @@ bool indri::collection::Repository::exists( const std::string& path ) {
 indri::collection::PriorListIterator* indri::collection::Repository::priorListIterator( const std::string& priorName ) {
   if( _priorFiles.find( priorName ) == _priorFiles.end() )
     return 0;
-    
+
   indri::file::File* priorFile = _priorFiles[priorName];
   indri::file::SequentialReadBuffer* buffer = new indri::file::SequentialReadBuffer( *priorFile, 1024*1024 );
-  
+
   return new indri::collection::PriorListIterator( buffer );
 }
 
@@ -519,7 +522,7 @@ indri::collection::PriorListIterator* indri::collection::Repository::priorListIt
 
 int indri::collection::Repository::addDocument( indri::api::ParsedDocument* document, bool inCollection ) {
   if( _readOnly )
-    LEMUR_THROW( LEMUR_RUNTIME_ERROR, "addDocument: Cannot add documents to a repository that is opened for read-only access." ); 
+    LEMUR_THROW( LEMUR_RUNTIME_ERROR, "addDocument: Cannot add documents to a repository that is opened for read-only access." );
 
   while( _thrashing ) {
     indri::thread::Thread::sleep( 100 );
@@ -533,7 +536,7 @@ int indri::collection::Repository::addDocument( indri::api::ParsedDocument* docu
 
   index_state state;
 
-  { 
+  {
     // get a copy of current index state
     indri::thread::ScopedLock stateLock( _stateLock );
     state = _active;
@@ -678,7 +681,7 @@ std::vector<indri::collection::Repository::index_state> indri::collection::Repos
     if( _stateContains( state, indexes ) )
       result.push_back( state );
   }
-  
+
   return result;
 }
 
@@ -724,7 +727,7 @@ void indri::collection::Repository::_write() {
 
   // grab a copy of the current state
   index_state state = indexes();
-  
+
   // if the current index is empty, don't need to write it
   if( state->size() && state->back()->documentCount() == 0 )
     return;
@@ -778,7 +781,7 @@ void indri::collection::Repository::_trim() {
   int firstDocumentCount = (int)(*state)[count-1]->documentCount();
   int lastDocumentCount = (int)(*state)[count-3]->documentCount();
   int documentCount = 0;
- 
+
   // move back until we find a really big index--don't merge with that one
   for( position = count-4; position>=0; position-- ) {
     // compute the average number of documents in the indexes we've seen so far
@@ -895,7 +898,7 @@ indri::index::Index* indri::collection::Repository::_mergeStage( index_state& st
   std::string indexPath = indri::file::Path::combine( _path, "index" );
   std::string newIndexPath = indri::file::Path::combine( indexPath, indexNumber.str() );
   indri::index::IndexWriter writer;
-  
+
   writer.write( indexes, _indexFields, _deletedList, newIndexPath );
 
   // open the index we just wrote
@@ -972,10 +975,10 @@ void indri::collection::Repository::_merge( index_state& state ) {
   size_t memoryBound = (size_t) (0.75 * _memory);
   std::vector<indri::index::Index*>* result = new std::vector<indri::index::Index*>;
 
-  if( state->size() <= 2 || 
-      ( _mergeMemory( *state ) < memoryBound && 
+  if( state->size() <= 2 ||
+      ( _mergeMemory( *state ) < memoryBound &&
         _mergeFiles(*state) < MERGE_FILE_LIMIT ) ) {
-                                        
+
     indri::index::Index* index = _mergeStage( state );
 
     result->push_back( index );
@@ -1051,7 +1054,7 @@ void indri::collection::Repository::_merge() {
 std::vector<std::string> indri::collection::Repository::priors() const {
   std::vector<std::string> t;
   std::map< std::string, indri::file::File* >::const_iterator iter;
-  
+
   for( iter = _priorFiles.begin(); iter != _priorFiles.end(); iter++ ) {
     t.push_back(iter->first);
   }
@@ -1100,11 +1103,11 @@ std::string indri::collection::Repository::processTerm( const std::string& term 
 
   original.terms.push_back( termBuffer );
   document = &original;
-  indri::thread::ScopedLock lock( _addLock );  
+  indri::thread::ScopedLock lock( _addLock );
   for( size_t i=0; i<_transformations.size(); i++ ) {
-    document = _transformations[i]->transform( document );    
+    document = _transformations[i]->transform( document );
   }
-  
+
   if( document->terms[0] )
     result = document->terms[0];
 
@@ -1179,7 +1182,7 @@ void indri::collection::Repository::close() {
     }
 
     _closeIndexes();
-    
+
     _closePriors();
 
     delete _collection;
@@ -1198,7 +1201,7 @@ void indri::collection::Repository::close() {
 void indri::collection::Repository::_checkpoint() {
   // Write manifest and deleted list. Close and reopen collection.
   // Enable opening the checkpoint as a valid index.
-  if( _collection ) {    
+  if( _collection ) {
     std::string manifest = "manifest";
     std::string paramPath = indri::file::Path::combine( _path, manifest );
     std::string deletedPath = indri::file::Path::combine( _path, "deleted" );
@@ -1298,7 +1301,7 @@ void indri::collection::Repository::_stopThreads() {
 
 void indri::collection::Repository::_setThrashing( bool flag ) {
   _thrashing = flag;
-  
+
   if( _thrashing ) {
     _lastThrashTime = indri::utility::IndriTimer::currentTime();
   }
@@ -1344,7 +1347,7 @@ std::vector<std::string> indri::collection::Repository::_fieldNames( indri::api:
   }
 
   return fields;
-}   
+}
 
 //
 // makeEmpty
@@ -1450,10 +1453,10 @@ void indri::collection::Repository::merge( const std::string& path, const std::v
     if( fieldNames != _fieldNames( repositoryManifest ) ) {
       LEMUR_THROW( LEMUR_RUNTIME_ERROR, "Cannot merge repositories that use different fields: " + inputIndexes[i] );
     }
-  } 
-  
+  }
+
   std::vector<std::string> usableIndexes = inputIndexes;
-  
+
   // remove any repositories that have no documents
   for( size_t i=0; i<usableIndexes.size(); i++ ) {
     if( documentMaximums[i] == 0 ) {
@@ -1461,8 +1464,8 @@ void indri::collection::Repository::merge( const std::string& path, const std::v
         usableIndexes.erase( usableIndexes.begin() + i );
         i--;
     }
-  }      
-  
+  }
+
   // now that we've removed empty indexes, are there any left?
   if( usableIndexes.size() == 0 ) {
       makeEmpty( path );

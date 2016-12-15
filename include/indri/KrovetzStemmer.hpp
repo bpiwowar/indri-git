@@ -16,23 +16,8 @@
 #define _KROVETZ_STEMMER_H_
 #include <iostream>
 #include <cstring>
-#ifdef WIN32
-#include <hash_map>
-#else
-// Move this somewhere
-#ifndef HAVE_GCC_VERSION
-#define HAVE_GCC_VERSION(MAJOR, MINOR) \
-  (__GNUC__ > (MAJOR) || (__GNUC__ == (MAJOR) && __GNUC_MINOR__ >= (MINOR)))
-#endif /* ! HAVE_GCC_VERSION */
-#if HAVE_GCC_VERSION(4,3)
-// if GCC 4.3+
-#include <tr1/unordered_map>
-#else
-#include <ext/hash_map>
-#endif
-// 3.3 does not use __gnu_cxx, 3.4+ does.
-using namespace __gnu_cxx;
-#endif
+
+#include <unordered_map>
 #include "indri/Mutex.hpp"
 #include "indri/ScopedLock.hpp"
 
@@ -132,29 +117,12 @@ namespace indri
       void nce_endings();
       // maint.
       void loadTables();
-#ifdef WIN32
-      struct ltstr {
-        bool operator()(const char* s1, const char* s2) const {
-          return strcmp(s1, s2) < 0;
-        }
-      };
-      //studio 7 hash_map provides hash_compare, rather than hash
-      // needing an < predicate, rather than an == predicate.
-      typedef stdext::hash_map<const char *, dictEntry, stdext::hash_compare<const char *, ltstr> > dictTable;
-#else
       struct eqstr {
         bool operator()(const char* s1, const char* s2) const {
           return strcmp(s1, s2) == 0;
         }
       };
-#if HAVE_GCC_VERSION(4,3)
-      typedef std::tr1::unordered_map<const char *, dictEntry, std::tr1::hash<std::string>, eqstr> dictTable;
-#elif _LIBCPP_VERSION
-    typedef __gnu_cxx::hash_map<const char *, dictEntry, std::hash<std::string>, eqstr> dictTable;
-#else
-      typedef hash_map<const char *, dictEntry, hash<const char *>, eqstr> dictTable;
-#endif
-#endif
+      typedef std::unordered_map<const char *, dictEntry, std::hash<const char *>, eqstr> dictTable;
       dictTable dictEntries;
       // this needs to be a bounded size cache.
       // kstem.cpp uses size 30013 entries.

@@ -29,6 +29,7 @@
 #include "indri/Parameters.hpp"
 #include "indri/File.hpp"
 #include "indri/ScopedLock.hpp"
+#include <htslib/bgzf.h>
 #include <algorithm>
 
 const int INPUT_BUFFER_SIZE = 1024;
@@ -349,7 +350,7 @@ void indri::collection::CompressedCollection::create( const std::string& fileNam
 // create
 //
 
-void indri::collection::CompressedCollection::create( const std::string& fileName, const std::vector<std::string>& forwardIndexedFields, const std::vector<std::string>& reverseIndexedFields, bool storeDocs ) {
+void indri::collection::CompressedCollection::create( const std::string& fileName, const std::vector<std::string>& forwardIndexedFields, const std::vector<std::string>& reverseIndexedFields, DocumentStorageMode storeDocs) {
   _storeDocs = storeDocs;
   
   std::string manifestName = indri::file::Path::combine( fileName, "manifest" );
@@ -364,7 +365,8 @@ void indri::collection::CompressedCollection::create( const std::string& fileNam
   indri::api::Parameters manifest;
   indri::api::Parameters forwardParameters = manifest.append( "forward" );
 
-  manifest.set( "storeDocs", _storeDocs );
+  manifest.set( "storeDocs", _storeDocs != DocumentStorageMode::NONE );
+  manifest.set( "storeDocsPointers", _storeDocs == DocumentStorageMode::POINTERS );
 
   for( size_t i=0; i<forwardIndexedFields.size(); i++ ) {
     std::stringstream metalookupName;
@@ -420,7 +422,13 @@ void indri::collection::CompressedCollection::open( const std::string& fileName 
   _lookup.open( lookupName );
   _output = new indri::file::SequentialWriteBuffer( _storage, 1024*1024 );
 
-  _storeDocs = manifest.get( "storeDocs", true );
+  if (manifest.get("storeDocs", true))  {
+    _storeDocs = manifest.get( "storeDocsPointers", false ) ?
+                 DocumentStorageMode::POINTERS : DocumentStorageMode::FULL;
+  } else {
+    _storeDocs = DocumentStorageMode::NONE;
+  }
+
   if( manifest.exists("forward.field") ) {
     indri::api::Parameters forward = manifest["forward.field"];
 
@@ -595,15 +603,21 @@ void indri::collection::CompressedCollection::addDocument( lemur::api::DOCID_T d
   int valueLength;
   int recordOffset = 0;
 
+  if (_storeDocs == DocumentStorageMode::POINTERS) {
+      // FIXME: implement the storage of the document
+      throw std::runtime_error("Not implemented: " __FILE__   ":" +  std::to_string(__LINE__ ));
+      // Use lookup to store offset + document
+      // _lookup.put(documentID, &offset, sizeof offset);
+   }
+
   // compress the document text, metadata, and term positions
   // record the file position of the start point and index it
   // in the metadata indexes for later retrieval
 
   // first, write the metadata, storing in metalookups as necessary
   for( size_t i=0; i<document->metadata.size(); i++ ) {
-    if ( _storeDocs )
-      _writeMetadataItem( document, (int)i, keyLength, valueLength );
-
+    if (_storeDocs == DocumentStorageMode::FULL)
+      _writeMetadataItem(document, (int)i, keyLength, valueLength );
     lemur::file::Keyfile** metalookup;
     metalookup = _forwardLookups.find( document->metadata[i].key );
 
@@ -643,7 +657,7 @@ void indri::collection::CompressedCollection::addDocument( lemur::api::DOCID_T d
         // silently discard any value is a bad key.
       }
     }
-    if ( _storeDocs ) {
+    if (_storeDocs == DocumentStorageMode::FULL ) {
       recordOffsets.push_back( recordOffset );
       recordOffsets.push_back( recordOffset + keyLength );
       recordOffset += (keyLength + valueLength);
@@ -651,7 +665,7 @@ void indri::collection::CompressedCollection::addDocument( lemur::api::DOCID_T d
   }
 
   // then, write the term positions, after compressing them (delta encoding only, perhaps?)
-  if ( _storeDocs ) {
+  if ( _storeDocs == DocumentStorageMode::FULL ) {
     _writePositions( document, keyLength, valueLength );
     recordOffsets.push_back( recordOffset );
     recordOffsets.push_back( recordOffset + keyLength );
@@ -695,95 +709,140 @@ bool indri::collection::CompressedCollection::exists( lemur::api::DOCID_T docume
   return _lookup.get( documentID, &offset, actual, sizeof offset );
 }
 
+struct DocumentPointer {
+  /// Offset to file
+  uint64_t fileStringOffset;
+
+  /// Content offset within file
+  uint32_t contentOffset;
+  /// Content length
+  uint32_t contentLength;
+
+  /// Text offset within file
+  uint32_t textOffset;
+  /// Text length
+  uint32_t textLength;
+};
+
 indri::api::ParsedDocument* indri::collection::CompressedCollection::retrieve( lemur::api::DOCID_T documentID ) {
   indri::thread::ScopedLock l( _lock );
 
-  UINT64 offset;
-  int actual;
-  
-  if( !_lookup.get( documentID, &offset, actual, sizeof offset ) ) {
-    LEMUR_THROW( LEMUR_IO_ERROR, "Unable to find document " + i64_to_string(documentID) + " in the collection." );
+  if (_storeDocs == DocumentStorageMode::POINTERS) {
+    DocumentPointer pointer;
+    int actual;
+
+    if (!_lookup.get(documentID, &pointer, actual, sizeof pointer)) {
+      LEMUR_THROW(LEMUR_IO_ERROR, "Unable to find document " + i64_to_string(documentID) + " in the collection.");
+    }
+
+    // Output buffer to store the document
+    indri::utility::Buffer output;
+
+    // initialize the buffer as a ParsedDocument
+    indri::api::ParsedDocument *document = (indri::api::ParsedDocument *) output.front();
+    new(document) indri::api::ParsedDocument;
+
+    document->text = 0;
+    document->textLength = 0;
+    document->content = 0;
+    document->contentLength = 0;
+
+    // flush output buffer; make sure all data is on disk
+    if (_output)
+      _output->flush();
+
+    // FIXME implement
+    throw std::runtime_error("Not implemented: " __FILE__   ":" +  std::to_string(__LINE__ ));
+    output.detach();
+    return document;
+  } else {
+    UINT64 offset;
+    int actual;
+
+    if (!_lookup.get(documentID, &offset, actual, sizeof offset)) {
+      LEMUR_THROW(LEMUR_IO_ERROR, "Unable to find document " + i64_to_string(documentID) + " in the collection.");
+    }
+
+    // flush output buffer; make sure all data is on disk
+    if (_output)
+      _output->flush();
+
+    // decompress the data
+    indri::utility::Buffer output;
+    z_stream_s stream;
+    stream.zalloc = zlib_alloc;
+    stream.zfree = zlib_free;
+
+    inflateInit(&stream);
+
+    zlib_read_document(stream, _storage, offset, output);
+    int decompressedSize = stream.total_out;
+
+    // initialize the buffer as a ParsedDocument
+    indri::api::ParsedDocument *document = (indri::api::ParsedDocument *) output.front();
+    new(document) indri::api::ParsedDocument;
+
+    document->text = 0;
+    document->textLength = 0;
+    document->content = 0;
+    document->contentLength = 0;
+
+    // get the number of fields (it's the last byte)
+    char *dataStart = output.front() + sizeof(indri::api::ParsedDocument);
+    int fieldCount = copy_quad(dataStart + decompressedSize - 4);
+    int endOffset = decompressedSize - 4 - 2 * fieldCount * sizeof(UINT32);
+    char *arrayStart = dataStart + endOffset;
+
+    const char *positionData = 0;
+    int positionDataLength = 0;
+
+    // store metadata
+    for (int i = 0; i < fieldCount; i++) {
+      int keyStart = copy_quad(arrayStart + 2 * i * sizeof(UINT32));
+      int valueStart = copy_quad(arrayStart + (2 * i + 1) * sizeof(UINT32));
+      int valueEnd;
+
+      if (i == (fieldCount - 1)) {
+        valueEnd = endOffset;
+      } else {
+        valueEnd = copy_quad(arrayStart + 2 * (i + 1) * sizeof(UINT32));
+      }
+
+      indri::parse::MetadataPair pair;
+      pair.key = dataStart + keyStart;
+      pair.value = dataStart + valueStart;
+      pair.valueLength = valueEnd - valueStart;
+
+      // extract text
+      if (!strcmp(pair.key, TEXT_KEY)) {
+        document->text = (char *) pair.value;
+        document->textLength = pair.valueLength;
+      }
+
+      // extract content
+      if (!strcmp(pair.key, CONTENT_KEY)) {
+        document->content = document->text + copy_quad((char *) pair.value);
+      }
+
+      // extract content length
+      if (!strcmp(pair.key, CONTENTLENGTH_KEY)) {
+        document->contentLength = copy_quad((char *) pair.value);
+      }
+
+      if (!strcmp(pair.key, POSITIONS_KEY)) {
+        positionData = (char *) pair.value;
+        positionDataLength = pair.valueLength;
+      }
+
+      document->metadata.push_back(pair);
+    }
+
+    // decompress positions
+    _readPositions(document, positionData, positionDataLength);
+
+    output.detach();
+    return document;
   }
-
-  // flush output buffer; make sure all data is on disk
-  if( _output )
-    _output->flush();
-
-  // decompress the data
-  indri::utility::Buffer output;
-  z_stream_s stream;
-  stream.zalloc = zlib_alloc;
-  stream.zfree = zlib_free;
-
-  inflateInit( &stream );
-
-  zlib_read_document( stream, _storage, offset, output );
-  int decompressedSize = stream.total_out;
-
-  // initialize the buffer as a ParsedDocument
-  indri::api::ParsedDocument* document = (indri::api::ParsedDocument*) output.front();
-  new(document) indri::api::ParsedDocument;
-
-  document->text = 0;
-  document->textLength = 0;
-  document->content = 0;
-  document->contentLength = 0;
-
-  // get the number of fields (it's the last byte)
-  char* dataStart = output.front() + sizeof(indri::api::ParsedDocument);
-  int fieldCount = copy_quad( dataStart + decompressedSize - 4 );
-  int endOffset = decompressedSize - 4 - 2*fieldCount*sizeof(UINT32);
-  char* arrayStart = dataStart + endOffset;
-
-  const char* positionData = 0;
-  int positionDataLength = 0;
-
-  // store metadata
-  for( int i=0; i<fieldCount; i++ ) {
-    int keyStart = copy_quad( arrayStart + 2*i*sizeof(UINT32) );
-    int valueStart = copy_quad( arrayStart + (2*i+1)*sizeof(UINT32) );
-    int valueEnd;
-
-    if( i==(fieldCount-1) ) {
-      valueEnd = endOffset;
-    } else {
-      valueEnd = copy_quad( arrayStart + 2*(i+1)*sizeof(UINT32) );
-    }
-
-    indri::parse::MetadataPair pair;
-    pair.key = dataStart + keyStart;
-    pair.value = dataStart + valueStart;
-    pair.valueLength = valueEnd - valueStart;
-
-    // extract text
-    if( !strcmp( pair.key, TEXT_KEY ) ) {
-      document->text = (char*) pair.value;
-      document->textLength = pair.valueLength;
-    }
-
-    // extract content
-    if( !strcmp( pair.key, CONTENT_KEY ) ) {
-      document->content = document->text + copy_quad( (char*) pair.value );
-    }
-
-    // extract content length
-    if( !strcmp( pair.key, CONTENTLENGTH_KEY ) ) {
-      document->contentLength = copy_quad( (char *)pair.value );
-    }
-
-    if( !strcmp( pair.key, POSITIONS_KEY ) ) {
-      positionData = (char*) pair.value;
-      positionDataLength = pair.valueLength;
-    }
-
-    document->metadata.push_back( pair );
-  }
-
-  // decompress positions
-  _readPositions( document, positionData, positionDataLength );
-
-  output.detach();
-  return document;
 }
 
 //

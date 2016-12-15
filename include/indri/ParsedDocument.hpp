@@ -36,6 +36,11 @@ namespace indri
       const char* content;
       size_t contentLength;
 
+      // Path to the parsed document (if this is a file)
+      const char* source;
+      // Offset within the parsed document
+      size_t offset;
+
       std::string getContent() {
         return std::string (content, contentLength);
       }
