@@ -4,40 +4,14 @@ project(indri_git)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(Zlib)
+find_package(ZLIB)
 find_package(hts)
 
 add_subdirectory(contrib/antlr)
 add_subdirectory(contrib/lemur)
 add_subdirectory(contrib/xpdf)
 
-set(SOURCE_FILES
-#    buildindex/IndriBuildIndex.cpp
-#    clarity/clarity.cpp
-#    dumpindex/dumpindex.cpp
-#    harvestlinks/harvestlinks.cpp
-#    contrib/zlib/include/crc32.h
-#    contrib/zlib/include/deflate.h
-#    contrib/zlib/include/inffast.h
-#    contrib/zlib/include/inffixed.h
-#    contrib/zlib/include/inflate.h
-#    contrib/zlib/include/inftrees.h
-#    contrib/zlib/include/trees.h
-#    contrib/zlib/include/zconf.h
-#    contrib/zlib/include/zlib.h
-#    contrib/zlib/include/zutil.h
-#    contrib/zlib/src/adler32.c
-#    contrib/zlib/src/compress.c
-#    contrib/zlib/src/crc32.c
-#    contrib/zlib/src/deflate.c
-#    contrib/zlib/src/gzio.c
-#    contrib/zlib/src/infback.c
-#    contrib/zlib/src/inffast.c
-#    contrib/zlib/src/inflate.c
-#    contrib/zlib/src/inftrees.c
-#    contrib/zlib/src/trees.c
-#    contrib/zlib/src/uncompr.c
-#    contrib/zlib/src/zutil.c
+set(PUBLIC_HEADERS
     include/indri/AnchorTextAnnotator.hpp
     include/indri/AnchorTextHarvester.hpp
     include/indri/AnchorTextWriter.hpp
@@ -289,6 +263,15 @@ set(SOURCE_FILES
     include/indri/XMLNode.hpp
     include/indri/XMLReader.hpp
     include/indri/XMLWriter.hpp
+)
+
+set(PUBLIC_HEADERS_ABSOLUTE)
+foreach(ph ${PUBLIC_HEADERS})
+    list(APPEND PUBLIC_HEADERS_ABSOLUTE ${CMAKE_SOURCE_DIR}/${ph})
+endforeach()
+
+set(SOURCE_FILES
+    ${PUBLIC_HEADERS}
     indrid/IndriDaemon.cpp
 #    makeprior/makeprior.cpp
 #    modifyfields/ModifyFields.cpp
@@ -458,10 +441,13 @@ set(SOURCE_FILES
 )
 
 add_library(indri STATIC ${SOURCE_FILES})
+
 target_link_libraries(indri antlr xpdf lemur ${ZLIB_LIBRARIES} ${LIBHTS_LIBRARIES})
 target_include_directories(indri PUBLIC include contrib/lemur/indri contrib/xpdf/include ${LIBHTS_INCLUDE_DIRS})
+
 
 
 add_subdirectory(buildindex)
 add_subdirectory(dumpindex)
 add_subdirectory(harvestlinks)
+add_subdirectory(swig)

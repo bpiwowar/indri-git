@@ -23,6 +23,8 @@
 #include "indri/TwoStageTermScoreFunction.hpp"
 #include "indri/Parameters.hpp"
 
+indri::query::TermScoreFunction::~TermScoreFunction() {}
+
 static void termscorefunctionfactory_parse( indri::api::Parameters& converted, const std::string& spec );
 
 //
@@ -48,7 +50,7 @@ indri::query::TermScoreFunction* indri::query::TermScoreFunctionFactory::get( co
   // happens somewhat less often than 1./collectionSize.  I picked 1/(2*collectionSize)
   // because it seemed most appropriate (from InferenceNetworkBuilder)
   if (contextSize == 0) contextSize = 1; // For non-existant fields.
-  
+
   double collectionFrequency = occurrences ? (occurrences/contextSize) :
     (collectionFrequency = 1.0 / double(contextSize*2.));
 
@@ -61,7 +63,7 @@ indri::query::TermScoreFunction* indri::query::TermScoreFunctionFactory::get( co
     // jelinek-mercer -- can take parameters collectionLambda (or just lambda) and documentLambda
     double documentLambda = spec.get( "documentLambda", 0.0 );
     double collectionLambda;
-    
+
     if( spec.exists( "collectionLambda" ) )
       collectionLambda = spec.get( "collectionLambda", 0.4 );
     else
@@ -72,7 +74,7 @@ indri::query::TermScoreFunction* indri::query::TermScoreFunctionFactory::get( co
     // twostage -- takes parameters mu and lambda
     double mu = spec.get( "mu", 2500 );
     double lambda = spec.get( "lambda", 0.4 );
-    
+
     return new indri::query::TwoStageTermScoreFunction( mu, lambda, collectionFrequency );
   } else if ( method == "tfidf" ) {
     double k1 = spec.get( "k1", 1.2 );

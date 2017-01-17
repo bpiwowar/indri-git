@@ -1,4 +1,4 @@
-#ifdef SWIGJAVA
+#if defined(SWIGJAVA) || defined(SWIGPYTHON)
 %module (directors="1") indri
 #endif
 %{
@@ -59,6 +59,30 @@ typedef long long UINT64;
 %include "IndexEnvironment.i"
 #endif
 
+
+#ifdef SWIGPYTHON
+
+%include "LemurException.i"
+%include "ConflationPattern.i"
+%include "MResults.i"
+%include "ScoredExtentArray.i"
+%include "ParsedDocument.i"
+%include "QueryAnnotationNode.i"
+
+%include "IntVector.i"
+%include "StringVector.i"
+%include "Parameters.i"
+%include "DocumentVector.i"
+%include "MetadataPairVector.i"
+%include "StringMap.i"
+%include "Specification.i"
+%include "QueryEnvironment.i"
+%include "QueryExpander.i"
+%include "IndexEnvironment.i"
+
+#endif
+
+
 #ifdef SWIGJAVA
 %pragma(java) jniclassimports="import java.util.Map;";
 
@@ -93,6 +117,7 @@ typedef long long UINT64;
   }
   %}
 #endif
+
 #endif
 #ifdef SWIGPHP5
 %module libindri_php
@@ -311,7 +336,7 @@ namespace indri{
       void addServer( const std::string& hostname );
       void addIndex( const std::string& pathname );
       void close();
-  
+
       void setMemory( UINT64 memory );
       void setScoringRules( const std::vector<std::string>& rules );
       void setStopwords( const std::vector<std::string>& stopwords );
@@ -358,7 +383,7 @@ namespace indri
 
       // runs original query, expands query based on results ( via expand( .. ) ), then runs expanded query
       std::vector<indri::api::ScoredExtentResult> runExpandedQuery( std::string originalQuery , int resultsRequested , bool verbose = false );
-  
+
       // creates expanded query from an original query and a ranked list of documents
       virtual std::string expand( std::string originalQuery , std::vector<indri::api::ScoredExtentResult>& results ) = 0;
     };
