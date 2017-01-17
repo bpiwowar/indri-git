@@ -112,3 +112,7 @@ indri::parse::Tokenizer* indri::parse::TokenizerFactory::get( const std::string&
 
   return tokenizer;
 }
+
+indri::parse::TokenizerFactory::~TokenizerFactory() {
+
+}

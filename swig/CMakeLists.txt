@@ -21,7 +21,7 @@ set(CMAKE_SWIG_FLAGS -builtin -c++)
 
 set_source_files_properties(src/indri.i PROPERTIES CPLUSPLUS ON)
 
-set(SWIG_MODULE_indri_python_EXTRA_DEPS ${PUBLIC_HEADERS_ABSOLUTE})
+set(SWIG_MODULE_indri_python_EXTRA_DEPS src/greedy_vector.i ${PUBLIC_HEADERS_ABSOLUTE})
 include_directories(../include ../contrib/lemur/include ../contrib/xpdf/include ${LIBHTS_INCLUDE_DIRS} ${PYTHON_INCLUDE_PATH})
 swig_add_module(indri_python python src/indri.i)
 

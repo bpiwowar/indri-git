@@ -45,8 +45,9 @@ namespace indri
     
     template<typename _Type, int _Count = 16>
     class greedy_vector {
-    private:
+     public:
       typedef greedy_vector<_Type, _Count> my_type;
+    private:
 
       LEMUR_PREALIGN char _stack[ sizeof(_Type) * _Count ] LEMUR_POSTALIGN;
       _Type* _array;
@@ -99,7 +100,7 @@ namespace indri
         erase( begin() + newSize, end() );
       }
 
-      void _subscript_gripe() {
+      void _subscript_gripe() const {
         throw std::out_of_range( "greedy_vector<T>: subscript too big" );
       }
 
