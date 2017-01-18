@@ -21,17 +21,6 @@
 #include "indri/Annotator.hpp"
 #include "indri/Parameters.hpp"
 #include <cmath>
-#ifdef ISNAN_IN_NAMESPACE_STD
-using std::isnan;
-#else
-#ifdef ISNAN_IN_NAMESPACE_GNU_CXX
-using __gnu_cxx::isnan;
-#endif
-#endif
-#ifdef WIN32
-#include <float.h>
-#define isnan _isnan
-#endif
 
 indri::infnet::ShrinkageBeliefNode::ShrinkageBeliefNode( const std::string& name, ListIteratorNode& child, DocumentStructureHolderNode& documentStructureHolderNode, indri::query::TermScoreFunction& scoreFunction, double maximumBackgroundScore, double maximumScore )
   :
@@ -359,7 +348,7 @@ void indri::infnet::ShrinkageBeliefNode::_buildScoreCache( lemur::api::DOCID_T d
 
       relative /= divisor;
       
-      if ( ! isnan( relative ) ) {
+      if ( ! std::isnan( relative ) ) {
         if ( remaining >= 0 ) {
           _up[ i ] = remaining * relative + absolute;
         } else {

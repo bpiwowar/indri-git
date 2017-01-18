@@ -73,3 +73,5 @@ add_library(antlr STATIC
     src/TokenStreamHiddenTokenFilter.cpp
     src/TokenStreamSelector.cpp
     src/TreeParser.cpp)
+
+target_include_directories(antlr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
