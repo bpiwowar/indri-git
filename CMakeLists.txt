@@ -4,6 +4,7 @@ project(indri_git)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 set(CMAKE_CXX_STANDARD 11)
 
+find_package(Threads)
 find_package(ZLIB)
 find_package(hts)
 
@@ -442,7 +443,7 @@ set(SOURCE_FILES
 
 add_library(indri STATIC ${SOURCE_FILES})
 
-target_link_libraries(indri antlr xpdf lemur ${ZLIB_LIBRARIES} ${LIBHTS_LIBRARIES})
+target_link_libraries(indri antlr xpdf lemur ${ZLIB_LIBRARIES} ${LIBHTS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(indri PUBLIC include contrib/lemur/indri contrib/xpdf/include ${LIBHTS_INCLUDE_DIRS})
 
 add_subdirectory(buildindex)
