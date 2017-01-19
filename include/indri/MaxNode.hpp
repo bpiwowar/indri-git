@@ -103,7 +103,7 @@ namespace indri
         // find the maximum score here, then descend only into that one
         double maxScore = INDRI_TINY_SCORE;
         int maxI = -1;
-        int maxJ = -1;
+//        int maxJ = -1;
         int maxBegin = -1;
         int maxEnd = -1;
 
@@ -111,7 +111,7 @@ namespace indri
 
         for( unsigned int i=0; i<_children.size(); i++ ) {
           const indri::utility::greedy_vector<indri::api::ScoredExtentResult>& childResults = _children[i]->score( documentID, extent, extent.end);
-  
+
           if (childResults.size() > 0) {
             for( unsigned int j=0; j<childResults.size(); j++ ) {
               if ( maxResult.score < childResults[j].score ) {

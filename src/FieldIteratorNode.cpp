@@ -22,9 +22,9 @@
 #include "indri/Annotator.hpp"
 
 indri::infnet::FieldIteratorNode::FieldIteratorNode( const std::string& name, InferenceNetwork& network, int listID ) :
-  _name(name),
+  _listID(listID),
   _network(network),
-  _listID(listID)
+  _name(name)
 {
 }
 

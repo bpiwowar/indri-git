@@ -54,8 +54,8 @@ namespace indri {
         };
 
         term_entry( indri::utility::RegionAllocator* allocator ) :
-          list(allocator),
-          next(0)
+          next(0),
+          list(allocator)
         {
         }
 

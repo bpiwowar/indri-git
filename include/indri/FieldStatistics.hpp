@@ -30,9 +30,9 @@ namespace indri {
         isParental(parental),
         totalCount(0),
         documentCount(0),
+        byteOffset(0),
         lastDocument(0),
-        lastCount(0),
-        byteOffset(0)
+        lastCount(0)
       {
       }
 
@@ -44,9 +44,9 @@ namespace indri {
         isParental(parental),
         totalCount(_totalCount),
         documentCount(_documentCount),
+        byteOffset(_byteOffset),
         lastDocument(0),
-        lastCount(0), 
-        byteOffset(_byteOffset)
+        lastCount(0)
       {
       }
 

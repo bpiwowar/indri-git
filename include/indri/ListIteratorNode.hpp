@@ -44,7 +44,7 @@ namespace indri
 
       /// sorts the extents by the parent IDs (if available)
       void sortparent(indri::utility::greedy_vector<indri::index::Extent>& extents) {
-        int sorted=0;
+//        int sorted=0;
         int lastbegin = 0; int lastend = extents.size();
         while(lastbegin<lastend){
           int i=lastbegin;
@@ -64,7 +64,7 @@ namespace indri
 
       /// sorts the extents by the beginning extent position (if available)
       void sortbegin(indri::utility::greedy_vector<indri::index::Extent>& extents){
-        int sorted=0;
+//        int sorted=0;
         int lastbegin = 0; int lastend = extents.size();
         while(lastbegin<lastend){
           int i=lastbegin;

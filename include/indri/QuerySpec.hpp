@@ -698,8 +698,8 @@ namespace indri {
       }
 
       UWNode( int windowSize, std::vector<RawExtentNode*>& children ) :
-        _windowSize(windowSize),
-        _children(children)
+        _children(children),
+        _windowSize(windowSize)
       {
       }
 
@@ -1695,7 +1695,7 @@ namespace indri {
       }
 
       UINT64 hashCode() const {
-        UINT64 accumulator = 53;
+//        UINT64 accumulator = 53;
 
         indri::utility::GenericHash<const char*> hash;
         return _raw->hashCode() * 7 + 
@@ -2706,13 +2706,13 @@ namespace indri {
 
     public:
       ContextSimpleCounterNode( const std::vector<std::string>& terms, const std::string& field, const std::string& context ) :
+        _terms(terms),
+        _field(field),
+        _context(context),
         _hasCounts(false),
         _hasContextSize(false),
         _occurrences(0),
         _contextSize(0),
-        _terms(terms),
-        _field(field),
-        _context(context),
         _documentOccurrences(0),
         _documentCount(0)
       {
@@ -3226,8 +3226,8 @@ namespace indri {
 
     public:
       LengthPrior(ScoredExtentNode * child, double exponent) :
-        _child(child), 
-        _exponent(exponent)
+        _exponent(exponent),
+        _child(child)
       {
         
       }

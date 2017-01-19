@@ -40,8 +40,8 @@ namespace indri
       ScoredExtentAccumulator( std::string name, BeliefNode* belief, int resultsRequested = -1 ) :
         _belief(belief),
         _resultsRequested(resultsRequested),
-        _name(name),
-        _skipping(0)
+        _skipping(0),
+        _name(name)
       {
         if( indri::api::Parameters::instance().get( "skipping", 1 ) )
           _skipping = dynamic_cast<SkippingCapableNode*>(belief);

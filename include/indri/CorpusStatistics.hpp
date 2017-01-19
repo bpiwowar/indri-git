@@ -24,7 +24,7 @@
 namespace indri {
   namespace index {
     struct CorpusStatistics {
-      CorpusStatistics() : totalTerms(0), totalDocuments(0), baseDocument(0), maximumDocument(0), uniqueTerms(0), maximumDocumentLength(0) {}
+      CorpusStatistics() :  totalTerms(0), baseDocument(0), maximumDocument(0), totalDocuments(0), uniqueTerms(0), maximumDocumentLength(0) {}
       UINT64 totalTerms;
       
       lemur::api::DOCID_T baseDocument;

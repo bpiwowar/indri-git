@@ -20,11 +20,11 @@
 #include "lemur/lemur-compat.hpp"
 
 indri::infnet::DocumentStructureHolderNode::DocumentStructureHolderNode( const std::string& name ) :
-  _name(name),
-  _nextDocument(1),
   _index(0),
-  _docIterID(0),
+  _nextDocument(1),
   _docIter(0),
+  _docIterID(0),
+  _name(name),
   _documentStructure(0)
 {
 }

@@ -21,8 +21,8 @@
 #include "lemur/lemur-compat.hpp"
 
 indri::infnet::ExtentRestrictionNode::ExtentRestrictionNode( const std::string& name, BeliefNode* child, ListIteratorNode* field ) :
-  _name(name),
   _child(child),
+  _name(name),
   _field(field),
  _matches()
 {

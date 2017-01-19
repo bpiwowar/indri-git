@@ -705,7 +705,7 @@ void indri::infnet::InferenceNetworkBuilder::after( indri::lang::TermFrequencySc
     if( termScorerNode->getOccurrences() > 0 ) {
       bool stopword = false;
       std::string processed = termScorerNode->getText();
-      int termID = 0;
+//      int termID = 0;
     
       // stem and stop the word
       if( termScorerNode->getStemmed() == false ) {

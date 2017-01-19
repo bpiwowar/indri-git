@@ -47,28 +47,29 @@ class DocumentStructure {
 public:
 
   DocumentStructure(Index & index, const indri::utility::greedy_vector<indri::index::FieldExtent> & fields) 
-    : _index( &index ) ,
+    :
       _numNodes( 0 ),
       _nodes( ),
-      _childrenBuff( )
-  {     
+      _childrenBuff( ),
+      _index( &index )
+  {
     loadStructure(fields);
   }
 
   DocumentStructure(Index & index) :
-    _index( &index ) ,
     _numNodes( 0 ),
     _nodes( ),
-    _childrenBuff( )
-  { 
+    _childrenBuff( ),
+    _index( &index )
+  {
   }
 
   DocumentStructure() :
-    _index( 0 ) ,
     _numNodes( 0 ),
     _nodes( ),
-    _childrenBuff( )
-  { 
+    _childrenBuff( ),
+    _index( 0 )
+  {
   }
 
   void loadStructure(const indri::utility::greedy_vector<indri::index::FieldExtent> & fields);

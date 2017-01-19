@@ -23,7 +23,7 @@ namespace lemur
     class Keyfile {
     public:
       ///initialize to empty
-      Keyfile() : _handleSize(0), _handle(NULL) {
+      Keyfile() : _handle(NULL), _handleSize(0) {
       }
 
       /// Insert value into b-tree for the given key. Throws an Exception if

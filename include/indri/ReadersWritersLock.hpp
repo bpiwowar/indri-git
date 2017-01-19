@@ -85,8 +85,8 @@ namespace indri
 
     public:
       ReadersWritersLock() :
-        _tail(0),
         _head(0),
+        _tail(0),
         _readers(0),
         _writers(0)
       {

@@ -29,15 +29,17 @@ namespace indri {
 
       FieldExtent( int _id, int _begin, int _end, INT64 _number, int _ordinal = 0, int _parentOrdinal = 0) : 
         id(_id), begin(_begin), end(_end), 
-        number(_number), ordinal(_ordinal), 
-        parentOrdinal(_parentOrdinal) 
+        parentOrdinal(_parentOrdinal),
+        ordinal(_ordinal),
+        number(_number)
       {
       }
 
       FieldExtent(const FieldExtent &f) :
         id(f.id), begin(f.begin), end(f.end),
-        number(f.number), ordinal(f.ordinal),
-        parentOrdinal(f.parentOrdinal)
+        parentOrdinal(f.parentOrdinal),
+        ordinal(f.ordinal),
+        number(f.number)
       {
       }
 
