@@ -455,6 +455,7 @@ set(SOURCE_FILES
         )
 
 add_library(indri STATIC ${SOURCE_FILES})
+set_property(TARGET indri PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(indri antlr xpdf ${ZLIB_LIBRARIES} ${LIBHTS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(indri PUBLIC include contrib/lemur/include contrib/xpdf/include ${LIBHTS_INCLUDE_DIRS})
