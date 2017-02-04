@@ -26,5 +26,7 @@ class greedy_vector<char *, _Count> {
 
 %apply indri::utility::greedy_vector< char * > { StringVector }
 */
+
 %template(StringVector) indri::utility::greedy_vector< char * >;
 %template(TermExtentVector) indri::utility::greedy_vector< indri::parse::TermExtent >;
+%template(TermIdVector) indri::utility::greedy_vector< lemur::api::TERMID_T >;

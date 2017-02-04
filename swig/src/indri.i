@@ -8,7 +8,7 @@
 #include <indri/Repository.hpp>
 #include <indri/LocalQueryServer.hpp>
 #include <indri/TokenizerFactory.hpp>
-
+#include <indri/Index.hpp>
 %}
 
 // Handles strings
@@ -26,7 +26,7 @@
    } catch (Swig::DirectorException &e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
    } catch(lemur::api::Exception &e) {
-       SWIG_exception(SWIG_RuntimeError, e.what().c_str());       
+       SWIG_exception(SWIG_RuntimeError, e.what().c_str());
    } catch(std::exception &e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
    }
@@ -47,9 +47,12 @@
 
 %newobject indri::parse::TokenizerFactory::get;
 
+%include <lemur/lemur-platform.h>
+%include <lemur/IndexTypes.hpp>
+
 %include "greedy_vector.i"
 
-%include <lemur/lemur-platform.h>
+
 %include <indri/AttributeValuePair.hpp>
 %include <indri/TagEvent.hpp>
 %include <indri/ObjectHandler.hpp>
@@ -68,6 +71,19 @@
 %include <indri/IndriTokenizer.hpp>
 %include <indri/TokenizerFactory.hpp>
 
+%include <indri/TermFieldStatistics.hpp>
+%include <indri/TermData.hpp>
+%include <indri/DiskTermData.hpp>
+%include <indri/DocumentData.hpp>
+%include <indri/DocListIterator.hpp>
+%include <indri/DocListFileIterator.hpp>
+%include <indri/DocExtentListIterator.hpp>
+%include <indri/VocabularyIterator.hpp>
+%include <indri/DocumentDataIterator.hpp>
+%include <indri/TermList.hpp>
+%include <indri/TermListFileIterator.hpp>
+%include <indri/Index.hpp>
+
 
 %extend indri::parse::UnparsedDocument {
     UnparsedDocument() {
@@ -84,7 +100,7 @@
         delete($self->content);
         delete($self);
     }
-    
+
     void setText(std::string const &s) {
         delete $self->text;
         size_t len = s.length();
@@ -102,3 +118,12 @@
 }
 
 
+%ignore indri::collection::Repository::indexes();
+%extend indri::collection::Repository {
+    size_t indexCount() {
+        return $self->indexes()->size();
+    }
+    indri::index::Index *getIndex(size_t index) {
+        return $self->indexes()->at(index);
+    }
+}
