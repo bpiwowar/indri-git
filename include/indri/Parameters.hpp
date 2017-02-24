@@ -201,7 +201,7 @@ namespace indri
       /// Initialize with a key path and parameter_value
       /// @param path the key.
       /// @param value the item to insert for that key.
-      Parameters( const std::string& path, parameter_value* value );
+//      Parameters( const std::string& path, parameter_value* value );
       /// Clean up.
       ~Parameters();
       /// @return the value of the parameter as a double

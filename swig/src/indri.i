@@ -9,6 +9,9 @@
 #include <indri/LocalQueryServer.hpp>
 #include <indri/TokenizerFactory.hpp>
 #include <indri/Index.hpp>
+#include <indri/MetadataPair.hpp>
+#include <indri/IndexEnvironment.hpp>
+#include <indri/QueryEnvironment.hpp>
 %}
 
 // Handles strings
@@ -19,6 +22,8 @@
 %include "exception.i"
 // Handle attributes for languages supporting this (Python)
 %include "attribute.i"
+// Handles vectors
+%include "std_vector.i"
 
 %exception {
    try {
@@ -39,13 +44,23 @@
 }
 
 
+// ---- Renames to avoid clashes
+
+%rename(ApiMetaDataPair) indri::api::MetadataPair;
+
+// ---- Immutable properties
+
 %immutable indri::parse::UnparsedDocument::text;
 %immutable indri::parse::UnparsedDocument::textLength;
 %immutable indri::parse::UnparsedDocument::content;
 %immutable indri::parse::UnparsedDocument::contentLength;
 
-
+// ---- New objects
+%newobject indri::index::Index::termList;
 %newobject indri::parse::TokenizerFactory::get;
+
+
+// ---- Includes
 
 %include <lemur/lemur-platform.h>
 %include <lemur/IndexTypes.hpp>
@@ -66,6 +81,7 @@
 %include <indri/TermExtent.hpp>
 
 %include <indri/UnparsedDocument.hpp>
+%include <indri/ParsedDocument.hpp>
 
 %include <indri/TokenizedDocument.hpp>
 %include <indri/IndriTokenizer.hpp>
@@ -84,6 +100,15 @@
 %include <indri/TermListFileIterator.hpp>
 %include <indri/Index.hpp>
 
+%include <indri/Parameters.hpp>
+
+%include <indri/DocumentVector.hpp>
+
+%include <indri/IndexEnvironment.hpp>
+%include <indri/ScoredExtentResult.hpp>
+%include <indri/QueryAnnotation.hpp>
+%include <indri/QueryEnvironment.hpp>
+
 
 %extend indri::parse::UnparsedDocument {
     UnparsedDocument() {
@@ -93,6 +118,7 @@
         d->textLength = 0;
         d->content = nullptr;
         d->contentLength = 0;
+        new (&d->metadata) indri::utility::greedy_vector<indri::parse::MetadataPair>();
         return d;
     }
     ~UnparsedDocument() {
@@ -113,7 +139,7 @@
         size_t len = s.length();
         self->content = (char*)malloc(sizeof(std::string::value_type) * (len + 1));
         strncpy((char*)self->content, s.c_str(), len);
-        $self->contentLength = s.length();
+        $self->contentLength = len;
     }
 }
 
@@ -126,4 +152,10 @@
     indri::index::Index *getIndex(size_t index) {
         return $self->indexes()->at(index);
     }
+}
+
+namespace std
+{
+  %template(IntVector) vector<int>;
+  %template(ScoredExtentResultVector) vector<indri::api::ScoredExtentResult>;
 }
