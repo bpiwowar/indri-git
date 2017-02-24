@@ -33,4 +33,5 @@ add_library(lemur STATIC
         src/SortMergeTextFiles.cpp
         src/string-set.c)
 
+set_property(TARGET lemur PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(lemur PUBLIC include include/lemur ../../include)

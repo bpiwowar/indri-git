@@ -111,4 +111,5 @@ add_library(xpdf STATIC
         src/xpdfParser.cc
         src/XRef.cc)
 
+set_property(TARGET xpdf PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(xpdf PUBLIC include)

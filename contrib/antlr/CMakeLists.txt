@@ -74,4 +74,5 @@ add_library(antlr STATIC
     src/TokenStreamSelector.cpp
     src/TreeParser.cpp)
 
+set_property(TARGET antlr PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(antlr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
