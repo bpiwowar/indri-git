@@ -29,7 +29,6 @@
 #include "indri/Parameters.hpp"
 #include "indri/File.hpp"
 #include "indri/ScopedLock.hpp"
-#include <htslib/bgzf.h>
 #include <algorithm>
 
 const int INPUT_BUFFER_SIZE = 1024;

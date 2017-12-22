@@ -166,7 +166,7 @@ inline void indri::index::DocListMemoryBuilder::_safeAddLocation( int position )
   _list = lemur::utility::RVLCompress::compress_int( _list, position - _lastLocation );
   _lastLocation = position;
   _termFrequency++;
-
+  
   assert( _locationCountPointer );
   assert( _listBegin < _locationCountPointer );
   assert( _listEnd > _locationCountPointer );

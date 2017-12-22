@@ -19,7 +19,6 @@ class greedy_vector<char *, _Count> {
 
 }}
 
-
 /*%typemap(out) char *const &indri::utility::greedy_vector< char * >::at {
     $result = yes;
 }
